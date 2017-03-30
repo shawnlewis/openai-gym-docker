@@ -45,7 +45,7 @@ Clone this repo into your ~/dockershare directory: https://github.com/joschu/mod
 
 Inside your container run:
 
-    cd ~/share
+    cd ~/share/modular_rl
     xvfb-run -s "-screen 0 1400x900x24" /bin/bash
     python run_pg.py --gamma=0.995 --lam=0.97 --agent=modular_rl.agentzoo.TrpoAgent --max_kl=0.01 --cg_damping=0.1 --activation=tanh --n_iter=250 --seed=0 --timesteps_per_batch=40000 --env=AirRaid-ram-v0 --outfile=~/share/AirRaid-ram-v0.h5
 
