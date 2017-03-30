@@ -1,6 +1,6 @@
 Description
 -----------
-A docker container that provides everything you need to write openai gym agents.
+A docker container that provides everything you need to write openai gym agents. It's based on https://github.com/floydhub/dl-docker, which provides the major deep learning frameworks out of the box.
 
 This container is CPU only. It will need to be modified to work with nvidia-docker.
 
