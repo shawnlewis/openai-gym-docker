@@ -16,7 +16,7 @@ Install docker via instructions here: https://docs.docker.com/docker-for-mac/ins
 
 Build the image:
 
-    docker build -t openai-gym .
+    docker build -t openai-gym:cpu -f Dockerfile.cpu .
 
 Install socat (for X11 port forwarding):
 
