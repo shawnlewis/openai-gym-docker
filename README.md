@@ -36,7 +36,7 @@ Run XQuartz on the host and forward the X port via TCP:
 
 Run:
 
-    docker run -it -p 8888:8888 -p 6006:6006 -v ~/dockershare:/root/share -e DISPLAY=192.168.86.170:0 openai-docker bash
+    docker run -it -p 8888:8888 -p 6006:6006 -v ~/dockershare:/root/share -e DISPLAY=192.168.86.170:0 openai-gym bash
 
 Running a TRPO agent
 --------------------
