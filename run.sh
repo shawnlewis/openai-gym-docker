@@ -1,0 +1,66 @@
+#!/bin/bash
+# Launches a docker container with working X11 forwarding. Currently only works
+# if this is a machine you've ssh'd into with ssh -X (or -Y).
+
+if [ -z "$DISPLAY" ]; then
+    echo "DISPLAY not set, not setting up X11 forwarding"
+fi
+
+
+# parse DISPLAY into three parts:
+#   <display_host>:<display_display>.<display_screen>
+display_host=${DISPLAY%%:*}
+if [[ $DISPLAY == *:* ]]; then
+    display_displayscreen=${DISPLAY#*:}
+    display_display=${display_displayscreen%%.*}
+    if [[ $display_displayscreen == *.* ]]; then
+        display_screen=${display_displayscreen#*.}
+    fi
+elif [[ $DISPLAY == *.* ]]; then
+    echo "Invalid DISPLAY variable"
+    exit 1
+fi
+
+# setup socat arguments
+
+if [[ -n "$display_host" ]]; then
+    socat1="TCP-LISTEN:6001,fork"
+    socat2="TCP:$display_host:60$(printf "%02d" $display_display)"
+	# linux only
+    host_ip=$(ip route get 1 | awk '{print $NF;exit}')
+	# for osx do: ipconfig getifaddr en0
+
+	xauth_magic=$(xauth list | grep ":$display_display" | awk '{print $3}')
+fi
+
+# kill child processes on signals
+trap "trap - SIGTERM && kill -- -$$" SIGINT SIGTERM EXIT
+
+# run socat as background job
+echo socat $socat1 $socat2
+socat $socat1 $socat2 &
+socat_pid=$!
+sleep 0.5
+if ! kill -0 "$socat_pid" ; then
+    echo "socat failed to start"
+    exit 1
+fi
+
+# create Xauth file
+# currently we create the file in the docker run command below. It might be
+# nicer to generate it on the host and share it with the container.
+
+# setup display variable to pass in
+container_display="$host_ip:1"
+
+echo $container_display
+echo $xauth_magic
+
+# run docker
+sudo docker run -it \
+    -p 8888:8888 \
+    -p 6006:6006 \
+    -v ~/dockershare:/root/share \
+    -e DISPLAY=$container_display \
+    openai-gym \
+	bash -c "touch ~/.Xauthority; xauth add $container_display . $xauth_magic; bash"
