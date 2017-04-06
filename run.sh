@@ -1,11 +1,13 @@
 #!/bin/bash
-# Launches a docker container with working X11 forwarding. Currently only works
-# if this is a machine you've ssh'd into with ssh -X (or -Y).
+# Launches a docker container with working X11 forwarding.
+
+if [ "$(uname)" == "Darwin" ]; then
+    open -a XQuartz
+fi
 
 if [ -z "$DISPLAY" ]; then
     echo "DISPLAY not set, not setting up X11 forwarding"
 fi
-
 
 # parse DISPLAY into three parts:
 #   <display_host>:<display_display>.<display_screen>
@@ -25,12 +27,18 @@ fi
 
 if [[ -n "$display_host" ]]; then
     socat1="TCP-LISTEN:6001,fork"
-    socat2="TCP:$display_host:60$(printf "%02d" $display_display)"
-	# linux only
-    host_ip=$(ip route get 1 | awk '{print $NF;exit}')
-	# for osx do: ipconfig getifaddr en0
+    if [[ "$display_host" == */* ]]; then
+        socat2="UNIX-CLIENT:\"$DISPLAY\""
+    else
+        socat2="TCP:$display_host:60$(printf "%02d" $display_display)"
+    fi
+    if [ "$(uname)" == "Darwin" ]; then
+        host_ip=$(ipconfig getifaddr en0)
+    else
+        host_ip=$(ip route get 1 | awk '{print $NF;exit}')
+    fi
 
-	xauth_magic=$(xauth list | grep ":$display_display" | awk '{print $3}')
+    xauth_magic=$(xauth list ":$display_display" | awk '{print $3}')
 fi
 
 # kill child processes on signals
@@ -63,4 +71,4 @@ sudo docker run -it \
     -v ~/dockershare:/root/share \
     -e DISPLAY=$container_display \
     openai-gym \
-	bash -c "touch ~/.Xauthority; xauth add $container_display . $xauth_magic; bash"
+    bash -c "touch ~/.Xauthority; xauth add $container_display . $xauth_magic; bash"

@@ -4,8 +4,6 @@ A docker container that provides everything you need to write openai gym agents.
 
 This container is CPU only. It will need to be modified to work with nvidia-docker.
 
-You can skip the socat/XQuartz/DISPLAY related parts if you'll be running headless.
-
 Setup
 -----
 
@@ -46,17 +44,12 @@ Build the image:
     docker build -t openai-gym:cpu -f Dockerfile.gpu .
 
 
-Running the image, with X-forwarding on OSX
--------------------------------------------
+Running the image
+-----------------
 
-Run XQuartz on the host and forward the X port via TCP:
+run.sh sets up X forwarding automatically, and launches the container.
 
-    open -a XQuartz
-    socat TCP-LISTEN:6000,reuseaddr,fork UNIX-CLIENT:\"$DISPLAY\"
-
-Run:
-
-    docker run -it -p 8888:8888 -p 6006:6006 -v ~/dockershare:/root/share -e DISPLAY=192.168.86.170:0 openai-gym bash
+    ./run.sh
 
 Running a TRPO agent
 --------------------
