@@ -54,12 +54,15 @@ if ! kill -0 "$socat_pid" ; then
     exit 1
 fi
 
-# create Xauth file
-# currently we create the file in the docker run command below. It might be
-# nicer to generate it on the host and share it with the container.
-
 # setup display variable to pass in
 container_display="$host_ip:1"
+
+# create Xauth file
+AUTH_DIR="/tmp/.docker_run"
+mkdir -p "$AUTH_DIR"
+xauth_file="$AUTH_DIR/xauth.$(uuidgen)"
+touch "$xauth_file"
+xauth -f "$xauth_file" add $container_display . $xauth_magic
 
 echo $container_display
 echo $xauth_magic
@@ -69,6 +72,8 @@ sudo docker run -it \
     -p 8888:8888 \
     -p 6006:6006 \
     -v ~/dockershare:/root/share \
+    -v $xauth_file:/tmp/Xauthority \
     -e DISPLAY=$container_display \
+    -e XAUTHORITY=/tmp/Xauthority \
     openai-gym \
-    bash -c "touch ~/.Xauthority; xauth add $container_display . $xauth_magic; bash"
+    bash
