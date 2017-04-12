@@ -17,6 +17,10 @@ Install docker via instructions here: https://docs.docker.com/docker-for-mac/ins
 
 ### General steps on a Linux host
 
+Install socat (for X11 port forwarding):
+
+    sudo apt-get install socat
+
 Install docker via instructions here: https://docs.docker.com/engine/installation/linux/ubuntu/#install-docker
 
 ### General steps, all hosts
@@ -33,6 +37,8 @@ Build the image:
 
 ### Docker image (gpu, Linux only)
 
+# NOTE: not working yet
+
 Build dl-docker gpu
 
     git clone https://github.com/saiprashanths/dl-docker.git
@@ -42,14 +48,6 @@ Build dl-docker gpu
 Build the image:
 
     docker build -t openai-gym:cpu -f Dockerfile.gpu .
-
-
-Running the image
------------------
-
-run.sh sets up X forwarding automatically, and launches the container.
-
-    ./run.sh
 
 Running a TRPO agent
 --------------------
