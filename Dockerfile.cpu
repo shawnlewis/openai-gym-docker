@@ -1,4 +1,4 @@
-FROM shawnlewis/ml-docker
+FROM shawnlewis/ml:cpu
 
 COPY keyboard /etc/default/keyboard
 
